@@ -29,16 +29,12 @@ function get_bsm(input) {
     for(var i=0; i<bsm_table.length; i++) {
         if( bsm_table[i].word == input) {
             var code = bsm_table[i].code
-            //if( code = "" ) {
-            //    continue
-            //} else {
-                result = result + code.toUpperCase() + " "
-            //}
+            result = result + code.toUpperCase() + " "
             found = true
         }
     }
    if( found ) {
-        return result // process.stdout.write(result)
+        return result
    } else {
         return undefined
    }
