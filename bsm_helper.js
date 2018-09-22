@@ -1,4 +1,5 @@
 var MAX_MATCHES = 20
+var fs = require('fs');
 
 function getByteLength(normal_val) {
     // Force string type
@@ -41,6 +42,23 @@ function get_bsm(input) {
         return undefined
    }
 }
+
+
+var terminal_cols = process.stdout.columns
+var outputed_cols = 0
+
+function output(text) {
+    process.stdout.write(text)
+    outputed_cols = outputed_cols + text.length
+    save_cols(text, outputed_cols)
+}
+
+function save_cols(text, cols) {
+    fs.appendFile('cols.txt', cols + ":" + text + "\n", function (err) {
+        if (err) throw err;
+    });
+}
+
 const readline = require('readline');
 readline.emitKeypressEvents(process.stdin);
 process.stdin.setRawMode(true);
@@ -53,6 +71,8 @@ process.stdin.on('keypress', (str, key) => {
             if( input == "" ) {
                 return   
             }
+            // for \r
+            outputed_cols--;
 
             var l = input.length
 
@@ -65,38 +85,52 @@ process.stdin.on('keypress', (str, key) => {
             if( s < 0 ) {
                 console.log(": INPUT ERROR!")
                 input = ""
-                return
             } else {
-                process.stdout.write(" ".repeat(s))
-                process.stdout.write(": ")
+                output(" ".repeat(s))
+                output(": ")
                 input = input.toString().trim()
                 process_input(input)
                 input = ""
-                console.log()
+                output("\n")
             }
+
+            outputed_cols = 0
         } else {
-            process.stdout.write(key.sequence)
+            output(key.sequence)
             input = input + key.sequence
         }
 });
+
+
 function process_input(input) {
     if( isChinese(input) ) {
-        var r = get_bsm(input)
-        if( r == undefined ) {
-            process.stdout.write("CODE NOT FOUND!")
+        var code = get_bsm(input)
+        if( code == undefined ) {
+            output("CODE NOT FOUND!")
         } else {
-            process.stdout.write(r)
+            output(code)
         }
     } else {
         var n=0
         for(var i=0; i<bpm_table.length; i++) {
             if( bpm_table[i].code == input) {
-                var r = get_bsm(bpm_table[i].word)
-                if( r != undefined ) {
+                var code = get_bsm(bpm_table[i].word)
+                if( code != undefined ) {
+                    var word = bpm_table[i].word
+                    var wl = word.length
+                    var l = wl + code.length
+
+                    if((outputed_cols + l) >= terminal_cols) {
+                        output("\n")
+                        outputed_cols = 0
+                        output(" ".repeat(6))
+                    }
+
                     process.stdout.write("\x1b[32m")
-                    process.stdout.write(bpm_table[i].word)
+                    output(word)
+                    outputed_cols++
                     process.stdout.write("\x1b[0m")
-                    process.stdout.write(r)
+                    output(code)
                 }
                 n++
             }
@@ -105,7 +139,7 @@ function process_input(input) {
             }
         }
         if(n == 0) {
-            process.stdout.write("CODE NOT FOUND!")
+            output("CODE NOT FOUND!")
         }
     }
 }
