@@ -61,15 +61,17 @@ process.stdin.on('keypress', (str, key) => {
                 var s = 4 - l
             }
             if( s < 0 ) {
-                process.stdout.write("ERR :")
+                console.log(": INPUT ERROR!")
+                input = " "
+                return
             } else {
                 process.stdout.write(" ".repeat(s))
                 process.stdout.write(": ")
+                input = input.toString().trim()
+                process_input(input)
+                input = ""
+                console.log()
             }
-            input = input.toString().trim()
-            process_input(input)
-            input = ""
-            console.log()
         } else {
             process.stdout.write(key.sequence)
             input = input + key.sequence
@@ -78,7 +80,11 @@ process.stdin.on('keypress', (str, key) => {
 function process_input(input) {
     if( isChinese(input) ) {
         var r = get_bsm(input)
-        process.stdout.write(r)
+        if( r == undefined ) {
+            process.stdout.write("CODE NOT FOUND!")
+        } else {
+            process.stdout.write(r)
+        }
     } else {
         var n=0
         for(var i=0; i<bpm_table.length; i++) {
@@ -95,6 +101,9 @@ function process_input(input) {
             if(n==10) {
                 break
             }
+        }
+        if(n == 0) {
+            process.stdout.write("CODE NOT FOUND!")
         }
     }
 
