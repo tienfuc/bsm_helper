@@ -45,20 +45,24 @@ process.stdin.setRawMode(true);
 var input = ""
 process.stdin.on('keypress', (str, key) => {
         if (key.ctrl && key.name === 'c') {
+            console.log("BYE BYE!")
             process.exit();
         } if(key.sequence == "\r") {
             if( input == "" ) {
                 return   
             }
+
             var l = input.length
+
             if( isChinese(input) ) {
                 var s = 3 - l   
             } else { 
                 var s = 4 - l
             }
+
             if( s < 0 ) {
                 console.log(": INPUT ERROR!")
-                input = " "
+                input = ""
                 return
             } else {
                 process.stdout.write(" ".repeat(s))
@@ -102,7 +106,6 @@ function process_input(input) {
             process.stdout.write("CODE NOT FOUND!")
         }
     }
-
 }
 
 var bsm_table = [
