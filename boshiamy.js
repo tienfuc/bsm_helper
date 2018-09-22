@@ -60,8 +60,12 @@ process.stdin.on('keypress', (str, key) => {
             } else { 
                 var s = 4 - l
             }
-            process.stdout.write(" ".repeat(s))
-            process.stdout.write(": ")
+            if( s < 0 ) {
+                process.stdout.write("ERR :")
+            } else {
+                process.stdout.write(" ".repeat(s))
+                process.stdout.write(": ")
+            }
             input = input.toString().trim()
             process_input(input)
             input = ""
