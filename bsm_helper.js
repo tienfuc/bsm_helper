@@ -1,3 +1,5 @@
+var MAX_MATCHES = 20
+
 function getByteLength(normal_val) {
     // Force string type
     normal_val = String(normal_val);
@@ -98,7 +100,7 @@ function process_input(input) {
                 }
                 n++
             }
-            if(n==10) {
+            if(n == MAX_MATCHES) {
                 break
             }
         }
