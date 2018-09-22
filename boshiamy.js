@@ -1,3 +1,101 @@
+function getByteLength(normal_val) {
+    // Force string type
+    normal_val = String(normal_val);
+
+    var byteLen = 0;
+    for (var i = 0; i < normal_val.length; i++) {
+        var c = normal_val.charCodeAt(i);
+        byteLen +=  c < (1 <<  7) ? 1 :
+                c < (1 << 11) ? 2 :
+                c < (1 << 16) ? 3 :
+                c < (1 << 21) ? 4 :
+                c < (1 << 26) ? 5 :
+                c < (1 << 31) ? 6 : Number.NaN;
+     }
+     return byteLen;
+} 
+
+
+function isChinese(ch) {
+    var l = ch.length
+    var bl = getByteLength(ch)
+
+    return !(l == bl)
+}
+
+function get_bsm(input) {
+    var result=""
+    var found = false
+    for(var i=0; i<bsm_table.length; i++) {
+        if( bsm_table[i].word == input) {
+            var code = bsm_table[i].code
+            //if( code = "" ) {
+            //    continue
+            //} else {
+                result = result + code.toUpperCase() + " "
+            //}
+            found = true
+        }
+    }
+   if( found ) {
+        return result // process.stdout.write(result)
+   } else {
+        return undefined
+   }
+}
+const readline = require('readline');
+readline.emitKeypressEvents(process.stdin);
+process.stdin.setRawMode(true);
+var input = ""
+process.stdin.on('keypress', (str, key) => {
+        if (key.ctrl && key.name === 'c') {
+            process.exit();
+        } if(key.sequence == "\r") {
+            if( input == "" ) {
+                return   
+            }
+            var l = input.length
+            if( isChinese(input) ) {
+                var s = 3 - l   
+            } else { 
+                var s = 4 - l
+            }
+            process.stdout.write(" ".repeat(s))
+            process.stdout.write(": ")
+            input = input.toString().trim()
+            process_input(input)
+            input = ""
+            console.log()
+        } else {
+            process.stdout.write(key.sequence)
+            input = input + key.sequence
+        }
+});
+function process_input(input) {
+    if( isChinese(input) ) {
+        var r = get_bsm(input)
+        process.stdout.write(r)
+    } else {
+        var n=0
+        for(var i=0; i<bpm_table.length; i++) {
+            if( bpm_table[i].code == input) {
+                var r = get_bsm(bpm_table[i].word)
+                if( r != undefined ) {
+                    process.stdout.write("\x1b[32m")
+                    process.stdout.write(bpm_table[i].word)
+                    process.stdout.write("\x1b[0m")
+                    process.stdout.write(r)
+                }
+                n++
+            }
+            if(n==10) {
+                break
+            }
+        }
+    }
+
+}
+
 var bsm_table = [
     {code:"'", word:"、"},
     {code:"'", word:"．"},
@@ -119352,63 +119450,3 @@ var bpm_table = [
     {code:"1u6", word:"鼻"},
     {code:"qu06", word:"𪘀"}
 ]
-
-
-function getByteLength(normal_val) {
-    // Force string type
-    normal_val = String(normal_val);
-
-    var byteLen = 0;
-    for (var i = 0; i < normal_val.length; i++) {
-        var c = normal_val.charCodeAt(i);
-        byteLen +=  c < (1 <<  7) ? 1 :
-                c < (1 << 11) ? 2 :
-                c < (1 << 16) ? 3 :
-                c < (1 << 21) ? 4 :
-                c < (1 << 26) ? 5 :
-                c < (1 << 31) ? 6 : Number.NaN;
-     }
-     return byteLen;
-} 
-
-
-function isChinese(ch) {
-    var l = ch.length
-    var bl = getByteLength(ch)
-
-    return !(l == bl)
-}
-
-function get_bsm(input) {
-    var result=""
-    for(var i=0; i<bsm_table.length; i++) {
-        if( bsm_table[i].word == input) {
-
-            result = result + " " + bsm_table[i].code.toUpperCase()
-        }
-    }
-    console.log(result)
-}
-
-var stdin = process.openStdin();
-stdin.addListener("data", function(d) {
-    var input = d.toString().trim()
-
-    if( isChinese(input) ) {
-        get_bsm(input)
-    } else {
-        var n=0
-        for(var i=0; i<bpm_table.length; i++) {
-            if( bpm_table[i].code == input) {
-                console.log(bpm_table[i].word)
-                get_bsm(bpm_table[i].word)
-                n++
-            }
-            if(n==2) {
-                break
-            }
-        }
-    }
-})
-
-
