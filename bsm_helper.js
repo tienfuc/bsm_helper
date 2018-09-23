@@ -1,4 +1,4 @@
-var MAX_MATCHES = 30
+var MAX_MATCHES = 100
 var fs = require('fs');
 
 function getByteLength(normal_val) {
