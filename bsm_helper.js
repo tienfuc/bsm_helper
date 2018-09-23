@@ -48,13 +48,13 @@ var terminal_cols = process.stdout.columns
 var outputed_cols = 0
 
 function output(text) {
+//    save_cols(text, outputed_cols)
     process.stdout.write(text)
-    outputed_cols = outputed_cols + text.length
-    save_cols(text, outputed_cols)
+    outputed_cols = outputed_cols + getByteLength(text)
 }
 
 function save_cols(text, cols) {
-    fs.appendFile('cols.txt', cols + ":" + text + "\n", function (err) {
+    fs.appendFile('cols.txt', cols +","+ getByteLength(text) + "," + text.length + ":" + text + "\n", function (err) {
         if (err) throw err;
     });
 }
@@ -71,8 +71,6 @@ process.stdin.on('keypress', (str, key) => {
             if( input == "" ) {
                 return   
             }
-            // for \r
-            outputed_cols--;
 
             var l = input.length
 
@@ -120,15 +118,14 @@ function process_input(input) {
                     var wl = word.length
                     var l = wl + code.length
 
-                    if((outputed_cols + l) >= terminal_cols) {
-                        output("\n")
+                    if((outputed_cols + l) > terminal_cols) {
+                        process.stdout.write("\n")
                         outputed_cols = 0
                         output(" ".repeat(6))
                     }
 
                     process.stdout.write("\x1b[32m")
                     output(word)
-                    outputed_cols++
                     process.stdout.write("\x1b[0m")
                     output(code)
                 }
